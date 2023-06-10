@@ -2,20 +2,23 @@ import random
 
 from paho.mqtt import client as mqtt_client
 
+"""
+TODO:
+-encrypted storage of username & password
+-non blocking communication with cloud
+"""
 broker = '192.168.1.100'
 port = 1883
 topic = "siemens"
-# generate client ID with pub prefix randomly
 client_id = f'python-mqtt-{random.randint(0, 100)}'
 username = 'simatic'
 password = 'SecureConnection'
-# store password and username in secure file
 
 
 def connect_mqtt() -> mqtt_client:
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
-            print("Connected to MQTT Broker!")
+            print(f"Connected to MQTT Broker <{broker}>, client_id: <{client_id}> listening to <{topic}>)")
         else:
             print("Failed to connect, return code %d\n", rc)
 
