@@ -5,7 +5,6 @@ from paho.mqtt import client as mqtt_client
 """
 TODO:
 -encrypted storage of username & password
--test if commits are still working
 -non blocking communication with cloud
 """
 broker = '192.168.1.100'
