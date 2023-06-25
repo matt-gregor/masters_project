@@ -19,7 +19,7 @@ url = 'http://16.16.220.162:8080/your-endpoint'  # cloud
 
 broker = '192.168.1.100'
 port = 1883
-topic = "siemens"
+topic = "connection_001/from_plc/siemens_001"
 client_id = f'python-mqtt-{random.randint(0, 100)}'
 username = 'simatic'
 password = 'SecureConnection'
@@ -28,7 +28,7 @@ password = 'SecureConnection'
 def connect_mqtt() -> mqtt_client:
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
-            print(f"Connected to MQTT Broker <{broker}>, client_id: <{client_id}> listening to <{topic}>)")
+            print(f"Connected to MQTT Broker <{broker}>, client_id: <{client_id}> listening to <{topic}>")
         else:
             print("Failed to connect, return code %d\n", rc)
 
@@ -54,7 +54,7 @@ def subscribe(client: mqtt_client):
             # Request was successful
             result = response.json()
             print('Result:', result)
-            publish(client, "other_topic", str(result))
+            publish(client, "connection_001/to_plc/cloud_001", str(result))
         else:
             # Request encountered an error
             print('Error:', response.status_code, response.json())
