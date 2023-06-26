@@ -54,7 +54,7 @@ def subscribe(client: mqtt_client):
             # Request was successful
             result = response.json()
             print('Result:', result)
-            publish(client, "connection_001/to_plc/cloud_001", str(result))
+            publish(client, "connection_001/to_plc/cloud_001", str(1987561.9875))
         else:
             # Request encountered an error
             print('Error:', response.status_code, response.json())
