@@ -3,8 +3,8 @@ import time
 import requests
 
 # Define the URL of the endpoint
-url = 'http://16.16.220.162:8080/your-endpoint'  # cloud
-# url = 'http://127.0.0.1:8080/your-endpoint'    # on-premise
+# url = 'http://16.16.220.162:8080/your-endpoint'  # cloud
+url = 'http://127.0.0.1:8080/your-endpoint'    # on-premise
 # Define the data to send in the request body
 
 data = {

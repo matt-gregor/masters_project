@@ -13,8 +13,8 @@ TODO:
 """
 
 # Define the URL of the endpoint
-url = 'http://16.16.220.162:8080/your-endpoint'  # cloud
-# url = 'http://127.0.0.1:8080/your-endpoint'    # on-premise
+# url = 'http://16.16.220.162:8080/your-endpoint'  # cloud
+url = 'http://127.0.0.1:8080/your-endpoint'    # on-premise
 # Define the data to send in the request body
 
 broker = '192.168.1.100'
@@ -44,9 +44,13 @@ def subscribe(client: mqtt_client):
         # mess = [float(part) for part in msg.payload.decode().split()]
         # print("Message content: " + str(msg.payload.decode()))
         # publish(client, "other_topic", msg.payload.decode())
-
+        mess1 = float(msg.payload.decode()[0:12])
+        print(msg.payload.decode()[13:24])
+        print(mess1)
         data = {
-            'value': 15
+            'SetPoint': float(msg.payload.decode()[0:12]),
+            'ProcessVariable': float(msg.payload.decode()[13:24]),
+            'ControlVariable': float(msg.payload.decode()[25:36])
         }
         response = requests.post(url, json=data)
         # Check the response status code
@@ -54,7 +58,8 @@ def subscribe(client: mqtt_client):
             # Request was successful
             result = response.json()
             print('Result:', result)
-            publish(client, "connection_001/to_plc/cloud_001", str(1987561.9875))
+            output = 2.137456
+            publish(client, "connection_001/to_plc/cloud_001", str(random.randint(100000, 999999))+str(output)[:6])
         else:
             # Request encountered an error
             print('Error:', response.status_code, response.json())
