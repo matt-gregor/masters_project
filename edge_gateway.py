@@ -41,16 +41,12 @@ def connect_mqtt() -> mqtt_client:
 
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
-        # mess = [float(part) for part in msg.payload.decode().split()]
-        # print("Message content: " + str(msg.payload.decode()))
-        # publish(client, "other_topic", msg.payload.decode())
-        mess1 = float(msg.payload.decode()[0:12])
-        print(msg.payload.decode()[13:24])
-        print(mess1)
+        mess = [float(part) for part in msg.payload.decode().split()]
+        print(mess)
         data = {
-            'SetPoint': float(msg.payload.decode()[0:12]),
-            'ProcessVariable': float(msg.payload.decode()[13:24]),
-            'ControlVariable': float(msg.payload.decode()[25:36])
+            'SetPoint': mess[0],
+            'ProcessVariable': mess[1],
+            'ControlVariable': mess[2]
         }
         response = requests.post(url, json=data)
         # Check the response status code
@@ -58,8 +54,9 @@ def subscribe(client: mqtt_client):
             # Request was successful
             result = response.json()
             print('Result:', result)
-            output = 2.137456
-            publish(client, "connection_001/to_plc/cloud_001", str(random.randint(100000, 999999))+str(output)[:6])
+            output = result['result']
+            print(output)
+            publish(client, "connection_001/to_plc/cloud_001", str(random.randint(100000, 999999))+str(float(output)+0.00001)[:6])
         else:
             # Request encountered an error
             print('Error:', response.status_code, response.json())
