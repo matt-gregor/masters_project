@@ -20,6 +20,7 @@ url = 'http://127.0.0.1:8080/your-endpoint'    # on-premise
 broker = '192.168.1.100'
 port = 1883
 topic = "connection_001/from_plc/siemens_001"
+cloud_topic = "connection_001/to_plc/cloud_001"
 client_id = f'python-mqtt-{random.randint(0, 100)}'
 username = 'simatic'
 password = 'SecureConnection'
@@ -43,23 +44,27 @@ def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
         mess = [float(part) for part in msg.payload.decode().split()]
         print(mess)
-        data = {
-            'SetPoint': mess[0],
-            'ProcessVariable': mess[1],
-            'ControlVariable': mess[2]
-        }
-        response = requests.post(url, json=data)
-        # Check the response status code
-        if response.status_code == 200:
-            # Request was successful
-            result = response.json()
-            print('Result:', result)
-            output = result['result']
-            print(output)
-            publish(client, "connection_001/to_plc/cloud_001", str(random.randint(100000, 999999))+str(float(output)+0.00001)[:6])
-        else:
-            # Request encountered an error
-            print('Error:', response.status_code, response.json())
+        if len(mess) > 0:
+            data = {
+                'SetPoint': mess[0],
+                'ProcessVariable': mess[1],
+                'ControlVariable': mess[2]
+            }
+            time1 = time.perf_counter_ns()
+            response = requests.post(url, json=data)
+            time2 = (time.perf_counter_ns() - time1)/1000000
+            print(f"time elapsed: {time2} ms")
+            # Check the response status code
+            if response.status_code == 200:
+                # Request was successful
+                result = response.json()
+                print('Result:', result)
+                output = result['result']
+                print(output)
+                publish(client, cloud_topic, str(random.randint(100000, 999999))+"{0:.6f}".format(float(output))[:6])
+            else:
+                # Request encountered an error
+                print('Error:', response.status_code, response.json())
 
     client.subscribe(topic)
     client.on_message = on_message
