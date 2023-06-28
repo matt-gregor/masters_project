@@ -7,9 +7,8 @@ from paho.mqtt import client as mqtt_client
 """
 TODO:
 -encrypted storage of username & password
--communication with cloud
--deconstruction of data frame and sending it to the plc
--non blocking communication with cloud
+-mpc
+-adrc
 """
 
 # Define the URL of the endpoint
@@ -48,7 +47,8 @@ def subscribe(client: mqtt_client):
             data = {
                 'SetPoint': mess[0],
                 'ProcessVariable': mess[1],
-                'ControlVariable': mess[2]
+                'ControlVariable': mess[2],
+                'ControllerType': 'PID'
             }
             time1 = time.perf_counter_ns()
             response = requests.post(url, json=data)
