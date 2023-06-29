@@ -60,7 +60,6 @@ def subscribe(client: mqtt_client):
                 result = response.json()
                 print('Result:', result)
                 output = result['result']
-                print(output)
                 publish(client, cloud_topic, str(random.randint(100000, 999999))+"{0:.6f}".format(float(output))[:6])
             else:
                 # Request encountered an error
