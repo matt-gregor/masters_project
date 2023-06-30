@@ -48,7 +48,7 @@ def subscribe(client: mqtt_client):
                 'SetPoint': mess[0],
                 'ProcessVariable': mess[1],
                 'ControlVariable': mess[2],
-                'ControllerType': 'ADRC'
+                'ControllerType': 'MPC'
             }
             time1 = time.perf_counter_ns()
             response = requests.post(url, json=data)
