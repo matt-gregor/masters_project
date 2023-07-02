@@ -13,7 +13,7 @@ TODO:
 
 # Define the URL of the endpoint
 # url = 'http://16.16.220.162:8080/your-endpoint'  # cloud
-url = 'http://127.0.0.1:8080/your-endpoint'    # on-premise
+url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
 # Define the data to send in the request body
 
 broker = '192.168.1.100'
@@ -39,6 +39,16 @@ def connect_mqtt() -> mqtt_client:
     return client
 
 
+def system_model(y, u):
+    delta_y = (-1 / T) * y + (K / T) * u
+    y = y + delta_y * H
+    return y
+
+K = 0.925156  # Gain
+T = 3.45  # Time constant
+T0 = 0.1  # Dead time
+H = 0.1  # Sampling time
+
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
         mess = [float(part) for part in msg.payload.decode().split()]
@@ -50,6 +60,8 @@ def subscribe(client: mqtt_client):
                 'ControlVariable': mess[2],
                 'ControllerType': 'MPC'
             }
+            # print(f"pv = {mess[1]}, sim_pv = {system_model(mess[1], mess[2])}")
+
             time1 = time.perf_counter_ns()
             response = requests.post(url, json=data)
             time2 = (time.perf_counter_ns() - time1)/1000000
