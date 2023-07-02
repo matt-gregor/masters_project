@@ -5,7 +5,7 @@ K = 0.925156  # Gain
 T = 3.45  # Time constant
 T0 = 0.1  # Dead time
 H = 0.1  # Sampling time
-Q = 1.0  # State deviation weight
+Q = 0.5  # State deviation weight
 R = 0.1  # Control effort weight
 u_min = 0.0
 u_max = 4.0
@@ -18,9 +18,8 @@ def system_model(y, u):
     y = next
     delta_y = (-1 / T) * y + (K / T) * u
     next = next + delta_y * H
-    print(f"u = {u} y = {y}")
+    # print(f"u = {u} y = {y}")
     return y
-
 def cost_function(u_sequence, y, setpoint_sequence):
     global next
     cost = 0.0
@@ -56,4 +55,4 @@ def mpc_controller(y, setpoint_sequence, u, horizon):
 
 horizon = 10
 print("AUEUEUEUE")
-print(mpc_controller(0, [2] * horizon, 0, horizon))
+print(mpc_controller(0, [1] * horizon, 0, horizon))
