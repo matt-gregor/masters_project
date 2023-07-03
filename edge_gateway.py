@@ -58,7 +58,8 @@ def subscribe(client: mqtt_client):
                 'SetPoint': mess[0],
                 'ProcessVariable': mess[1],
                 'ControlVariable': mess[2],
-                'ControllerType': 'ADRC'
+                'ErrorSum': mess[3],
+                'ControllerType': 'PID'
             }
             # print(f"pv = {mess[1]}, sim_pv = {system_model(mess[1], mess[2])}")
             try:
