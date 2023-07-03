@@ -61,21 +61,24 @@ def subscribe(client: mqtt_client):
                 'ControllerType': 'ADRC'
             }
             # print(f"pv = {mess[1]}, sim_pv = {system_model(mess[1], mess[2])}")
-
-            time1 = time.perf_counter_ns()
-            response = requests.post(url, json=data)
-            time2 = (time.perf_counter_ns() - time1)/1000000
-            print(f"time elapsed: {time2} ms")
-            # Check the response status code
-            if response.status_code == 200:
-                # Request was successful
-                result = response.json()
-                print('Result:', result)
-                output = result['result']
-                publish(client, cloud_topic, str(random.randint(100000, 999999))+"{0:.6f}".format(float(output))[:6])
-            else:
-                # Request encountered an error
-                print('Error:', response.status_code, response.json())
+            try:
+                time1 = time.perf_counter_ns()
+                response = requests.post(url, json=data, timeout=0.09)
+                time2 = (time.perf_counter_ns() - time1)/1000000
+                print(f"time elapsed: {time2} ms")
+                # Check the response status code
+                if response.status_code == 200:
+                    # Request was successful
+                    result = response.json()
+                    print('Result:', result)
+                    output = result['result']
+                    publish(client, cloud_topic, str(random.randint(100000, 999999))+"{0:.6f}".format(float(output))[:6])
+                else:
+                    print('Error:', response.status_code, response.json())
+            except KeyboardInterrupt:
+                raise KeyboardInterrupt
+            except:
+                print("Error while sending data to Cloud - server not responding! (trying again)")
 
     client.subscribe(topic)
     client.on_message = on_message
@@ -91,9 +94,15 @@ def publish(client: mqtt_client, topic: str, message: str):
 
 
 def run():
-    client = connect_mqtt()
-    subscribe(client)
-    client.loop_forever()
+    client = None
+    while client is None:
+        try:
+            client = connect_mqtt()
+            subscribe(client)
+        except ConnectionRefusedError:
+            print("MQTT Broker unavailable - trying again")
+        else:
+            client.loop_forever()
 
 
 if __name__ == '__main__':
