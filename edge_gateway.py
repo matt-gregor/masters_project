@@ -39,16 +39,6 @@ def connect_mqtt() -> mqtt_client:
     return client
 
 
-def system_model(y, u):
-    delta_y = (-1 / T) * y + (K / T) * u
-    y = y + delta_y * H
-    return y
-
-K = 0.925156  # Gain
-T = 3.45  # Time constant
-T0 = 0.1  # Dead time
-H = 0.1  # Sampling time
-
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
         mess = [float(part) for part in msg.payload.decode().split()]
@@ -59,7 +49,7 @@ def subscribe(client: mqtt_client):
                 'ProcessVariable': mess[1],
                 'ControlVariable': mess[2],
                 'ErrorSum': mess[3],
-                'ControllerType': 'MPC'
+                'ControllerType': 'myMPC'
             }
             # print(f"pv = {mess[1]}, sim_pv = {system_model(mess[1], mess[2])}")
             try:
