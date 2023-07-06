@@ -7,8 +7,6 @@ from paho.mqtt import client as mqtt_client
 """
 TODO:
 -encrypted storage of username & password
--mpc
--adrc
 """
 
 # Define the URL of the endpoint
