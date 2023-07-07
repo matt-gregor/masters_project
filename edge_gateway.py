@@ -10,8 +10,8 @@ TODO:
 """
 
 # Define the URL of the endpoint
-# url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
-url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
+url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
+# url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
 # Define the data to send in the request body
 
 broker = '192.168.1.100'
@@ -47,7 +47,7 @@ def subscribe(client: mqtt_client):
                 'ProcessVariable': mess[1],
                 'ControlVariable': mess[2],
                 'ErrorSum': mess[3],
-                'ControllerType': 'myMPC'
+                'ControllerType': 'MPC'
             }
             # print(f"pv = {mess[1]}, sim_pv = {system_model(mess[1], mess[2])}")
             try:
