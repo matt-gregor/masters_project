@@ -2,6 +2,7 @@ import random
 import time
 
 import requests
+from paho.mqtt import MQTTException
 from paho.mqtt import client as mqtt_client
 
 """
@@ -12,8 +13,8 @@ TODO:
 # Define the URL of the endpoint
 # url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
 url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
-# Define the data to send in the request body
 
+# Connection data
 broker = '192.168.1.100'
 port = 1883
 topic = "connection_001/from_plc/siemens_001"
@@ -42,18 +43,17 @@ def connect_mqtt() -> mqtt_client:
 
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
-        global time_sum
-        global average
-        global msg_count
-        mess = [float(part) for part in msg.payload.decode().split()]
-
-        if len(mess) > 0:
+        global time_sum, average, msg_count
+        raw_mess = msg.payload.decode().split()
+        mess = [float(part) for part in raw_mess[:-1]]
+        mess.append(raw_mess[-1])
+        if mess:
             data = {
                 'SetPoint': mess[0],
                 'ProcessVariable': mess[1],
                 'ControlVariable': mess[2],
                 'ErrorSum': mess[3],
-                'ControllerType': 'MPC0'
+                'ControllerType': mess[4]
             }
             try:
                 time1 = time.perf_counter_ns()
@@ -65,14 +65,19 @@ def subscribe(client: mqtt_client):
                 if response.status_code == 200:
                     result = response.json()
                     output = result['result']
-                    print(f"Data received: from broker: {mess}; from server: {float(output):.4f}; time elapsed: {time2} ms; average time: {average:.4f}")
-                    publish(client, cloud_topic, str(random.randint(100000, 999999))+"{0:.6f}".format(float(output))[:6])
+                    print(f"Data received: from broker: {mess};\
+                           from server: {float(output):.4f};\
+                           time elapsed: {time2} ms;\
+                           average time: {average:.4f}")
+                    publish(client, cloud_topic, str(random.randint(100000, 999999))
+                            + "{0:.6f}".format(float(output))[:6])
                 else:
-                    print('Error:', response.status_code, response.json() + print(f"Data received: from broker: {mess}; time elapsed: {time2} ms"))
-            except KeyboardInterrupt:
-                raise KeyboardInterrupt
-            except:
-                print(f"Error while sending data to Cloud - server not responding! (trying again)")
+                    print('Error:', response.status_code, response.json()
+                          + print(f"Data received: from broker: {mess}; time elapsed: {time2} ms"))
+            except MQTTException:
+                print("Error while sending data to Broker! (trying again)")
+            except requests.RequestException:
+                print("Error while sending data to Cloud - server not responding! (trying again)")
 
     client.subscribe(topic)
     client.on_message = on_message
