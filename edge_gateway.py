@@ -1,14 +1,11 @@
+import os
 import random
 import time
 
 import requests
+from dotenv import find_dotenv, load_dotenv
 from paho.mqtt import MQTTException
 from paho.mqtt import client as mqtt_client
-
-"""
-TODO:
--encrypted storage of username & password
-"""
 
 # Define the URL of the endpoint
 # url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
@@ -20,11 +17,13 @@ port = 1883
 topic = "connection_001/from_plc/siemens_001"
 cloud_topic = "connection_001/to_plc/cloud_001"
 client_id = f'python-mqtt-{random.randint(0, 100)}'
-username = 'simatic'
-password = 'SecureConnection'
 time_sum = 0.0
 average = 0.0
 msg_count = 0
+
+
+def load_vulnerable_data():
+    load_dotenv(find_dotenv())
 
 
 def connect_mqtt() -> mqtt_client:
@@ -32,10 +31,10 @@ def connect_mqtt() -> mqtt_client:
         if rc == 0:
             print(f"Connected to MQTT Broker <{broker}>, client_id: <{client_id}> listening to <{topic}>")
         else:
-            print("Failed to connect, return code %d\n", rc)
+            print(f"Failed to connect, return code {rc}")
 
     client = mqtt_client.Client(client_id)
-    client.username_pw_set(username, password)
+    client.username_pw_set(os.getenv("MQTT_USERNAME"), os.getenv("MQTT_PASSWORD"))
     client.on_connect = on_connect
     client.connect(broker, port)
     return client
@@ -65,10 +64,7 @@ def subscribe(client: mqtt_client):
                 if response.status_code == 200:
                     result = response.json()
                     output = result['result']
-                    print(f"Data received: from broker: {mess};\
-                           from server: {float(output):.4f};\
-                           time elapsed: {time2} ms;\
-                           average time: {average:.4f}")
+                    print(f"Data received: from broker: {mess}; from server: {float(output):.4f}; time elapsed: {time2} ms; average time: {average:.4f}")
                     publish(client, cloud_topic, str(random.randint(100000, 999999))
                             + "{0:.6f}".format(float(output))[:6])
                 else:
@@ -93,6 +89,7 @@ def publish(client: mqtt_client, topic: str, message: str):
 
 
 def run():
+    load_vulnerable_data()
     client = None
     while client is None:
         try:
