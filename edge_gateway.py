@@ -10,8 +10,8 @@ TODO:
 """
 
 # Define the URL of the endpoint
-url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
-# url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
+# url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
+url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
 # Define the data to send in the request body
 
 broker = '192.168.1.100'
@@ -21,6 +21,9 @@ cloud_topic = "connection_001/to_plc/cloud_001"
 client_id = f'python-mqtt-{random.randint(0, 100)}'
 username = 'simatic'
 password = 'SecureConnection'
+time_sum = 0.0
+average = 0.0
+msg_count = 0
 
 
 def connect_mqtt() -> mqtt_client:
@@ -39,35 +42,37 @@ def connect_mqtt() -> mqtt_client:
 
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
+        global time_sum
+        global average
+        global msg_count
         mess = [float(part) for part in msg.payload.decode().split()]
-        print(mess)
+
         if len(mess) > 0:
             data = {
                 'SetPoint': mess[0],
                 'ProcessVariable': mess[1],
                 'ControlVariable': mess[2],
                 'ErrorSum': mess[3],
-                'ControllerType': 'MPC'
+                'ControllerType': 'MPC0'
             }
-            # print(f"pv = {mess[1]}, sim_pv = {system_model(mess[1], mess[2])}")
             try:
                 time1 = time.perf_counter_ns()
                 response = requests.post(url, json=data, timeout=0.09)
                 time2 = (time.perf_counter_ns() - time1)/1000000
-                print(f"time elapsed: {time2} ms")
-                # Check the response status code
+                time_sum += time2
+                msg_count += 1
+                average = time_sum / msg_count
                 if response.status_code == 200:
-                    # Request was successful
                     result = response.json()
-                    print('Result:', result)
                     output = result['result']
+                    print(f"Data received: from broker: {mess}; from server: {float(output):.4f}; time elapsed: {time2} ms; average time: {average:.4f}")
                     publish(client, cloud_topic, str(random.randint(100000, 999999))+"{0:.6f}".format(float(output))[:6])
                 else:
-                    print('Error:', response.status_code, response.json())
+                    print('Error:', response.status_code, response.json() + print(f"Data received: from broker: {mess}; time elapsed: {time2} ms"))
             except KeyboardInterrupt:
                 raise KeyboardInterrupt
             except:
-                print("Error while sending data to Cloud - server not responding! (trying again)")
+                print(f"Error while sending data to Cloud - server not responding! (trying again)")
 
     client.subscribe(topic)
     client.on_message = on_message
@@ -77,7 +82,7 @@ def publish(client: mqtt_client, topic: str, message: str):
     result = client.publish(topic, message)
     status = result[0]
     if status == 0:
-        print("Message published successfully!")
+        print(f"Message published successfully to <{broker}>, topic: <{topic}>!")
     else:
         print("Failed to publish message")
 
