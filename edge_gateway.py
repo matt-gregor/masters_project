@@ -8,8 +8,8 @@ from paho.mqtt import MQTTException
 from paho.mqtt import client as mqtt_client
 
 # Define the URL of the endpoint
-url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
-# url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
+# url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
+url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
 
 # Connection data
 broker = '192.168.1.100'
@@ -21,6 +21,7 @@ time_sum = 0.0
 average = 0.0
 msg_count = 0
 session = None
+
 
 def load_vulnerable_data():
     load_dotenv(find_dotenv())
@@ -92,8 +93,16 @@ def run():
     global session
     load_vulnerable_data()
     client = None
-    session = requests.Session()
-    session.get(url)
+    while session is None:
+        try:
+            session = requests.Session()
+            session.get(url)
+        except requests.exceptions.ConnectionError:
+            session = None
+            print("Server unavailable - trying again in 1 second")
+            time.sleep(1)
+        else:
+            print(f"Succesfully connected to server <{url}>!")
     while client is None:
         try:
             client = connect_mqtt()
