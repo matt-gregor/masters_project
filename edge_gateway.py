@@ -8,8 +8,8 @@ from paho.mqtt import MQTTException
 from paho.mqtt import client as mqtt_client
 
 # Define the URL of the endpoint
-# url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
-url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
+url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
+# url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
 
 # Connection data
 broker = '192.168.1.100'
@@ -20,7 +20,7 @@ client_id = f'python-mqtt-{random.randint(0, 100)}'
 time_sum = 0.0
 average = 0.0
 msg_count = 0
-
+session = None
 
 def load_vulnerable_data():
     load_dotenv(find_dotenv())
@@ -56,7 +56,7 @@ def subscribe(client: mqtt_client):
             }
             try:
                 time1 = time.perf_counter_ns()
-                response = requests.post(url, json=data, timeout=0.09)
+                response = session.post(url, json=data, timeout=0.09)
                 time2 = (time.perf_counter_ns() - time1)/1000000
                 time_sum += time2
                 msg_count += 1
@@ -69,7 +69,7 @@ def subscribe(client: mqtt_client):
                             + "{0:.6f}".format(float(output))[:6])
                 else:
                     print('Error:', response.status_code, response.json()
-                          + print(f"Data received: from broker: {mess}; time elapsed: {time2} ms"))
+                          + f"Data received: from broker: {mess}; time elapsed: {time2} ms")
             except MQTTException:
                 print("Error while sending data to Broker! (trying again)")
             except requests.RequestException:
@@ -89,8 +89,11 @@ def publish(client: mqtt_client, topic: str, message: str):
 
 
 def run():
+    global session
     load_vulnerable_data()
     client = None
+    session = requests.Session()
+    session.get(url)
     while client is None:
         try:
             client = connect_mqtt()
