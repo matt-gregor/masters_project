@@ -8,8 +8,8 @@ from paho.mqtt import MQTTException
 from paho.mqtt import client as mqtt_client
 
 # Define the URL of the endpoint
-# url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
-url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
+url = 'http://16.16.220.162:8080/cloud-controller-endpoint'  # cloud
+# url = 'http://127.0.0.1:8080/cloud-controller-endpoint'    # on-premise
 
 # Connection data
 broker = '192.168.1.100'
