@@ -65,7 +65,10 @@ def subscribe(client: mqtt_client):
                 if response.status_code == 200:
                     result = response.json()
                     output = result['result']
-                    print(f"Data received: from broker: {mess}; from server: {float(output):.4f}; time elapsed: {time2} ms; average time: {average:.4f}")
+                    operation_time = result['operation_time']
+                    print(f"Data received: from broker: {mess};from server: {float(output):.4f};"
+                          f"time elapsed: {time2} ms; average time: {average:.4f};"
+                          f"server operation time {operation_time}")
                     publish(client, cloud_topic, str(random.randint(100000, 999999))
                             + "{0:.6f}".format(float(output))[:6])
                 else:
