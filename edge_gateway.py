@@ -46,9 +46,9 @@ def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
         global time_sum, average, msg_count, previous_controller_type
         raw_mess = msg.payload.decode().split()
-        mess = [float(part) for part in raw_mess[:-1]]
-        mess.append(raw_mess[-1].upper())
-        if mess:
+        if raw_mess:
+            mess = [float(part) for part in raw_mess[:-1]]
+            mess.append(raw_mess[-1].upper())
             data = {
                 'SetPoint': mess[0],
                 'ProcessVariable': mess[1],
