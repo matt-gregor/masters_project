@@ -54,7 +54,7 @@ def subscribe(client: mqtt_client):
                 'ProcessVariable': mess[1],
                 'ControlVariable': mess[2],
                 'ErrorSum': mess[3],
-                'MPCHorizonLength': mess[4],
+                'MPCHorizonLength': int(mess[4]),
                 'MPCQ': mess[5],
                 'MPCR': mess[6],
                 'ControllerType': mess[-1]
