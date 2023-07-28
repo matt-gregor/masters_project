@@ -1,5 +1,7 @@
+import csv
 import os
 import random
+import signal
 import time
 
 import requests
@@ -22,11 +24,45 @@ average = 0.0
 msg_count = 0
 previous_controller_type = ''
 session = None
-
+f = None
+path = 'C:\\Projekty\\mgr\\measurements\\measurements1.csv'
 
 def load_vulnerable_data():
     load_dotenv(find_dotenv())
 
+
+def close_file(signal_num, frame):
+    global f
+    if f:
+        f.close()
+    print("Program interrupted by Ctrl + C.")
+    exit(0)
+
+
+signal.signal(signal.SIGINT, close_file)
+
+
+if os.path.exists(path):
+    f = open(path, 'a', newline='')
+    writer = csv.writer(f)
+else:
+    f = open(path, 'a', newline='')
+    writer = csv.writer(f)
+    writer.writerow(['set_point',
+                     'process_variable',
+                     'control_variable',
+                     'controller_type',
+                     'current_error',
+                     'overshoot',
+                     'regulation_time',
+                     'rise_time',
+                     'ISE',
+                     'IAE',
+                     'MSE',
+                     'control_cost',
+                     'plc_control_variable',
+                     'gateway_time_elapsed',
+                     'server_time_elapsed'])
 
 def connect_mqtt() -> mqtt_client:
     def on_connect(client, userdata, flags, rc):
@@ -75,11 +111,14 @@ def subscribe(client: mqtt_client):
                     result = response.json()
                     output = result['result']
                     operation_time = result['operation_time']
+                    cpa_val = result['cpa_val']
                     print(f"Data received: from broker: {mess};from server: {float(output):.4f};"
                           f"time elapsed: {time2} ms; average time: {average:.4f};"
                           f"server operation time: {operation_time} ms")
                     publish(client, cloud_topic, str(random.randint(100000, 999999))
                             + "{0:.6f}".format(float(output))[:6])
+                    cpa_val.extend([time2, operation_time])
+                    writer.writerow(cpa_val)
                 else:
                     print('Error:', response.status_code, response.json()
                           + f"Data received: from broker: {mess}; time elapsed: {time2} ms")
