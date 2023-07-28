@@ -20,6 +20,7 @@ client_id = f'python-mqtt-{random.randint(0, 100)}'
 time_sum = 0.0
 average = 0.0
 msg_count = 0
+previous_controller_type = ''
 session = None
 
 
@@ -43,7 +44,7 @@ def connect_mqtt() -> mqtt_client:
 
 def subscribe(client: mqtt_client):
     def on_message(client, userdata, msg):
-        global time_sum, average, msg_count
+        global time_sum, average, msg_count, previous_controller_type
         raw_mess = msg.payload.decode().split()
         mess = [float(part) for part in raw_mess[:-1]]
         mess.append(raw_mess[-1].upper())
@@ -53,8 +54,16 @@ def subscribe(client: mqtt_client):
                 'ProcessVariable': mess[1],
                 'ControlVariable': mess[2],
                 'ErrorSum': mess[3],
-                'ControllerType': mess[4]
+                'MPCHorizonLength': mess[4],
+                'MPCQ': mess[5],
+                'MPCR': mess[6],
+                'ControllerType': mess[-1]
             }
+            # Resetting average time of communication
+            if data['ControllerType'] != previous_controller_type:
+                previous_controller_type = data['ControllerType']
+                time_sum = 0
+                msg_count = 0
             try:
                 time1 = time.perf_counter_ns()
                 response = session.post(url, json=data, timeout=0.09)
