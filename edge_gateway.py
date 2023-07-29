@@ -25,7 +25,7 @@ msg_count = 0
 previous_controller_type = ''
 session = None
 f = None
-path = 'C:\\Projekty\\mgr\\measurements\\measurements1.csv'
+path = 'C:\\Projekty\\mgr\\measurements\\test.csv'
 
 
 def load_vulnerable_data():
@@ -36,7 +36,7 @@ def close_file(signal_num, frame):
     global f
     if f:
         f.close()
-    print("Program interrupted by Ctrl + C.")
+    print("Program interrupted by Ctrl + C. Closing file.")
     exit(0)
 
 
