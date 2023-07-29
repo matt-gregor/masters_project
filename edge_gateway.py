@@ -64,6 +64,7 @@ else:
                      'gateway_time_elapsed',
                      'server_time_elapsed'])
 
+
 def connect_mqtt() -> mqtt_client:
     def on_connect(client, userdata, flags, rc):
         if rc == 0:
@@ -117,7 +118,7 @@ def subscribe(client: mqtt_client):
                           f"server operation time: {operation_time} ms")
                     publish(client, cloud_topic, str(random.randint(100000, 999999))
                             + "{0:.6f}".format(float(output))[:6])
-                    cpa_val.extend([time2, operation_time])
+                    cpa_val.extend([data['ControlVariable'], time2, operation_time])
                     writer.writerow(cpa_val)
                 else:
                     print('Error:', response.status_code, response.json()
