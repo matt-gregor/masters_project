@@ -43,12 +43,16 @@ def close_file(signal_num, frame):
 signal.signal(signal.SIGINT, close_file)
 
 
-if os.path.exists(path):
-    f = open(path, 'a', newline='')
-    writer = csv.writer(f)
+f = open(path, 'a', newline='')
+writer = csv.writer(f)
+if os.stat(path).st_size > 0:
+    if (input("The file is not empty, accept (y/Y):")).upper() == 'Y':
+        pass
+    else:
+        print("File overwrite discarded by user. Stopping program.")
+        f.close()
+        exit(0)
 else:
-    f = open(path, 'a', newline='')
-    writer = csv.writer(f)
     writer.writerow(['set_point',
                      'process_variable',
                      'control_variable',
