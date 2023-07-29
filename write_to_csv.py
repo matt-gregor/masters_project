@@ -30,7 +30,7 @@ if os.path.exists(path):
 else:
     f = open(path, 'a', newline='')
     writer = csv.writer(f)
-    writer.writerow(['aa', 'bb', 'cc','dd','ee'])
+    writer.writerow(['aa', 'bb', 'cc', 'dd', 'ee'])
 
 
 data = {
@@ -40,7 +40,7 @@ data = {
 d = [data[a] for a in data]
 
 print(d)
-d.extend([1,3])
+d.extend([1, 3])
 print(d)
 for i in range(1000):
     time1 = time.perf_counter_ns()

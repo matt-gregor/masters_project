@@ -27,6 +27,7 @@ session = None
 f = None
 path = 'C:\\Projekty\\mgr\\measurements\\measurements1.csv'
 
+
 def load_vulnerable_data():
     load_dotenv(find_dotenv())
 
