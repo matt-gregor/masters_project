@@ -25,7 +25,7 @@ msg_count = 0
 previous_controller_type = ''
 session = None
 f = None
-path = 'C:\\Projekty\\mgr\\measurements\\pid_adrc_mpc.csv'
+path = 'C:\\Projekty\\mgr\\measurements\\pid_long_new_timeout.csv'
 
 
 def load_vulnerable_data():
@@ -111,7 +111,7 @@ def subscribe(client: mqtt_client):
                 msg_count = 0
             try:
                 time1 = time.perf_counter_ns()
-                response = session.post(url, json=data, timeout=0.08)
+                response = session.post(url, json=data, timeout=0.06)
                 # response = session.post(url, json=data)
                 time2 = (time.perf_counter_ns() - time1)/1000000
                 time_sum += time2
@@ -127,7 +127,7 @@ def subscribe(client: mqtt_client):
                           f"server operation time: {operation_time} ms")
                     publish(client, cloud_topic, str(random.randint(100000, 999999))
                             + "{0:.6f}".format(float(output))[:6])
-                    cpa_val.extend([data['ControlVariable'], data['MPCHorizonLength'], data['MPCQ'], data['MPCR'],time2, operation_time])
+                    cpa_val.extend([data['ControlVariable'], data['MPCHorizonLength'], data['MPCQ'], data['MPCR'], time2, operation_time])
                     writer.writerow(cpa_val)
                 else:
                     print('Error:', response.status_code, response.json()
