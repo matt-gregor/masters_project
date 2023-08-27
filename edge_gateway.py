@@ -25,7 +25,7 @@ msg_count = 0
 previous_controller_type = ''
 session = None
 f = None
-path = 'C:\\Projekty\\mgr\\measurements\\aaaa.csv'
+path = 'path\\to\\csv\\file\\filename.csv'
 
 
 def load_vulnerable_data():
@@ -112,6 +112,7 @@ def subscribe(client: mqtt_client):
             try:
                 time1 = time.perf_counter_ns()
                 response = session.post(url, json=data, timeout=0.06)
+                # Test behavior of the system without timeout
                 # response = session.post(url, json=data)
                 time2 = (time.perf_counter_ns() - time1)/1000000
                 time_sum += time2
